@@ -1,0 +1,24 @@
+# Environment & secret files
+.env
+.env.local
+
+# SQLite database files
+*.db
+*.db-wal
+*.db-shm
+news_cache.db
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/

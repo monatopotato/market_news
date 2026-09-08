@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  stock-news-bot:
+    build: .
+    container_name: stock_news_telegram_bot
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./news_cache.db:/app/news_cache.db
