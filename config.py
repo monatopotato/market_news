@@ -7,6 +7,7 @@ load_dotenv()
 # Telegram Settings
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+ENABLE_TELEGRAM_POLLING = os.getenv("ENABLE_TELEGRAM_POLLING", "false").lower() == "true"
 
 # Optional API Keys
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "")

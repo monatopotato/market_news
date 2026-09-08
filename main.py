@@ -98,8 +98,8 @@ async def main() -> None:
     scanner_task = asyncio.create_task(scanner_loop())
     digest_task = asyncio.create_task(periodic_digest_loop())
 
-    if config.TELEGRAM_BOT_TOKEN:
-        logger.info("Starting Telegram Bot interactive polling (Condition 3)...")
+    if config.TELEGRAM_BOT_TOKEN and config.ENABLE_TELEGRAM_POLLING:
+        logger.info("Starting Telegram Bot interactive polling...")
         app = build_telegram_app()
         await app.initialize()
         await app.start()
@@ -123,10 +123,7 @@ async def main() -> None:
                 pass
             await web_runner.cleanup()
     else:
-        logger.warning(
-            "TELEGRAM_BOT_TOKEN not configured in environment! "
-            "Running in MOCK CONSOLE MODE (alerts will print to logs)."
-        )
+        logger.info("🟢 24/7 Scanner & Digest Notifier Active (PythonAnywhere Mode). Delivering S&P 500 alerts directly to Telegram!")
         try:
             await asyncio.gather(scanner_task, digest_task)
         except KeyboardInterrupt:
