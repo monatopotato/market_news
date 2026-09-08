@@ -41,7 +41,7 @@ async def scanner_loop() -> None:
     """Continuous low-latency news scanner loop for instant major news (Condition 2)."""
     logger.info(f"Starting instant news scanner loop (interval: {config.POLL_INTERVAL_SECONDS}s)...")
     
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         while True:
             try:
                 logger.debug("Scanning feeds for instant alerts...")
@@ -65,7 +65,7 @@ async def periodic_digest_loop() -> None:
     """Periodic market news summary digest loop every 2 hours (Condition 1)."""
     logger.info(f"Starting periodic digest loop (interval: {config.PERIODIC_DIGEST_INTERVAL_SECONDS}s / {config.PERIODIC_DIGEST_INTERVAL_SECONDS // 3600} hours)...")
     
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         while True:
             try:
                 await asyncio.sleep(config.PERIODIC_DIGEST_INTERVAL_SECONDS)

@@ -127,7 +127,7 @@ async def fetch_finnhub_news(session: aiohttp.ClientSession) -> List[Dict[str, A
 
 async def fetch_all_sources() -> List[Dict[str, Any]]:
     """Run all async fetchers concurrently and return combined unique new articles."""
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         tasks = [
             parse_rss_feed(session, config.FED_PRESS_RELEASES_RSS, "Federal Reserve"),
             parse_rss_feed(session, config.SEC_EDGAR_8K_RSS, "SEC EDGAR 8-K"),

@@ -96,7 +96,7 @@ async def analyze_stock_ticker(ticker: str) -> Dict[str, Any]:
     yahoo_url = config.YAHOO_TICKER_RSS.format(ticker=ticker)
     google_url = config.GOOGLE_TICKER_RSS.format(ticker=ticker)
 
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(trust_env=True) as session:
         yahoo_task = fetch_rss_headlines(session, yahoo_url)
         google_task = fetch_rss_headlines(session, google_url)
         results = await asyncio.gather(yahoo_task, google_task, return_exceptions=True)
