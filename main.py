@@ -49,9 +49,18 @@ async def scanner_loop() -> None:
                 
                 if articles:
                     logger.info(f"Discovered {len(articles)} new market announcement(s).")
+                    from database import count_recent_alerts_last_hour, mark_article_processed
                     for article in articles:
-                        await send_telegram_alert(session, article)
-                        await asyncio.sleep(0.5) # Brief pause between messages
+                        recent_count = count_recent_alerts_last_hour()
+                        if recent_count < 2:
+                            await send_telegram_alert(session, article)
+                            await asyncio.sleep(0.5)
+                        else:
+                            logger.info(f"Rate limit reached (max 2/hr). Saving for digest: {article['title']}")
+                            mark_article_processed(
+                                article["id"], article["title"], article["url"],
+                                article["source"], article.get("category", "OTHER"), article.get("published_at")
+                            )
                         
             except asyncio.CancelledError:
                 logger.info("Scanner loop cancelled.")

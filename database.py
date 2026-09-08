@@ -80,3 +80,14 @@ def get_recent_articles(limit: int = 10, db_path: str = DB_PATH) -> List[Dict[st
             }
             for r in rows
         ]
+
+def count_recent_alerts_last_hour(db_path: str = DB_PATH) -> int:
+    """Count how many instant alerts were sent in the last 60 minutes."""
+    with get_connection(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT COUNT(*) FROM articles
+            WHERE datetime(created_at) >= datetime('now', '-1 hour')
+        """)
+        row = cursor.fetchone()
+        return row[0] if row else 0
