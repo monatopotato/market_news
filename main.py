@@ -1,7 +1,9 @@
+import os
 import asyncio
 import logging
 import sys
 import aiohttp
+from aiohttp import web
 
 import config
 from database import init_db
@@ -16,6 +18,24 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger("main")
+
+async def health_check(request: web.Request) -> web.Response:
+    """Health check endpoint for free web service hosting platforms (Render/Koyeb)."""
+    return web.Response(text="🟢 Stock & Fed News Telegram Bot is Running 24/7!", status=200)
+
+async def start_web_server() -> web.AppRunner:
+    """Start lightweight HTTP server for Render/Koyeb free web service health checks."""
+    port = int(os.getenv("PORT", "10000"))
+    app = web.Application()
+    app.router.add_get("/", health_check)
+    app.router.add_get("/health", health_check)
+    
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logger.info(f"HTTP Web Server running on port {port} (Render Free Tier Ready).")
+    return runner
 
 async def scanner_loop() -> None:
     """Continuous low-latency news scanner loop for instant major news (Condition 2)."""
@@ -48,7 +68,6 @@ async def periodic_digest_loop() -> None:
     async with aiohttp.ClientSession() as session:
         while True:
             try:
-                # Wait for interval before sending periodic summary digest
                 await asyncio.sleep(config.PERIODIC_DIGEST_INTERVAL_SECONDS)
                 logger.info("Triggering periodic 2-hour market news digest...")
                 await send_digest_summary(session)
@@ -62,6 +81,9 @@ async def main() -> None:
     """Main application launcher."""
     logger.info("Initializing Stock & Fed News Telegram Bot...")
     init_db()
+
+    # Start HTTP server for Render/Koyeb Free Tier
+    web_runner = await start_web_server()
 
     # Create background scanner and digest tasks
     scanner_task = asyncio.create_task(scanner_loop())
@@ -84,6 +106,7 @@ async def main() -> None:
             await app.updater.stop()
             await app.stop()
             await app.shutdown()
+            await web_runner.cleanup()
     else:
         logger.warning(
             "TELEGRAM_BOT_TOKEN not configured in environment! "
@@ -94,6 +117,7 @@ async def main() -> None:
         except KeyboardInterrupt:
             scanner_task.cancel()
             digest_task.cancel()
+            await web_runner.cleanup()
 
 if __name__ == "__main__":
     try:
