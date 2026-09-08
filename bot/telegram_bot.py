@@ -143,7 +143,9 @@ def build_telegram_app() -> Application:
     if not config.TELEGRAM_BOT_TOKEN:
         raise ValueError("TELEGRAM_BOT_TOKEN is not set.")
 
-    app = Application.builder().token(config.TELEGRAM_BOT_TOKEN).build()
+    from telegram.request import HTTPXRequest
+    req = HTTPXRequest(connect_timeout=15.0, read_timeout=15.0)
+    app = Application.builder().token(config.TELEGRAM_BOT_TOKEN).request(req).build()
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("stock", stock_command))
     app.add_handler(CommandHandler("latest", latest_command))

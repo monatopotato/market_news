@@ -103,7 +103,10 @@ async def main() -> None:
         app = build_telegram_app()
         await app.initialize()
         await app.start()
-        await app.updater.start_polling()
+        try:
+            await app.updater.start_polling()
+        except Exception as e:
+            logger.warning(f"Interactive Telegram long-polling restricted on this host ({e}). Continuing 24/7 background scanner & digest loop.")
         
         try:
             # Keep process alive
@@ -112,9 +115,12 @@ async def main() -> None:
             pass
         finally:
             logger.info("Stopping Telegram Bot...")
-            await app.updater.stop()
-            await app.stop()
-            await app.shutdown()
+            try:
+                await app.updater.stop()
+                await app.stop()
+                await app.shutdown()
+            except Exception:
+                pass
             await web_runner.cleanup()
     else:
         logger.warning(
